@@ -6,8 +6,8 @@ version = "0.1.0"
 [deps]
 BroadcastableStructs = "69bbf4a4-23d0-4da4-b4ea-97dbcb735a40"
 ForwardDiff = "f6369f11-7733-5829-9624-2563aa707210"
+Requires = "ae029012-a4dd-5104-9daa-d747884805df"
 Setfield = "efcf1570-3423-57d1-acb7-fd33fddbac46"
-Zygote = "e88e6eb3-aa80-5325-afca-941959d7151f"
 ZygoteRules = "700de1a5-db45-46bc-99cf-38207098b444"
 
 [compat]
