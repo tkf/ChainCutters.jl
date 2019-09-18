@@ -9,7 +9,7 @@ end ChainCutters
 using Setfield: Setfield, constructor_of, setproperties
 using ForwardDiff
 using ForwardDiff: Dual
-using Zygote: unbroadcast
+using Zygote: Zygote, unbroadcast
 using ZygoteRules
 
 @inline foldlargs(op, x) = x
@@ -51,6 +51,16 @@ Base.getproperty(x::Const, name) = _cut(getproperty(unwrap(x), name))
 Base.getproperty(x::Variable, name) = _uncut(getproperty(unwrap(x), name))
 Base.getproperty(x::Const, name::Symbol) = _cut(getproperty(unwrap(x), name))
 Base.getproperty(x::Variable, name::Symbol) = _uncut(getproperty(unwrap(x), name))
+
+nothingsfor(obj) =
+    NamedTuple{__fieldnames(obj)}(ntuple(_ -> nothing, nfields(obj)))
+
+@adjoint function Zygote.literal_getproperty(obj::Wrapper, ::Val{name}) where name
+    Zygote.literal_getproperty(obj, Val(name)), function(Δ)
+        nt = nothingsfor(unwrap(obj))
+        (setproperties(nt, NamedTuple{(name,)}((Δ,))), nothing)
+    end
+end
 
 Setfield.setproperties(obj::Const, patch) =
     Const(setproperties(unwrap(obj), patch))

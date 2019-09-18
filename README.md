@@ -44,3 +44,27 @@ julia> ∂B
  9  1  3
  1  2  5
 ```
+
+## Treating specific fields of constant object as variables
+
+Fields inside objects marked as constant by `cut` can be marked as a
+variable using `uncut`.
+
+```julia
+julia> using ChainCutters: uncut
+
+julia> using Setfield
+
+julia> C, back = Zygote.forward((A = A, B = B, alpha = 2)) do p
+           q = cut(@set p.B = uncut(p.B))  # only treat `B` as varying
+           q.A * q.B * q.alpha
+       end;
+
+julia> C == A * B * 2
+true
+
+julia> ∂p, = back(I(3));
+
+julia> ∂p
+(A = nothing, B = [2 18 10; 18 2 6; 2 4 10], alpha = nothing)
+```
