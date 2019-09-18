@@ -6,4 +6,8 @@ using Test
     include(file)
 end
 
+using ChainCutters
+using Documenter: doctest
+doctest(ChainCutters)
+
 end  # module

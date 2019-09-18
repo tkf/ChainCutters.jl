@@ -1,6 +1,8 @@
 [deps]
 BroadcastableStructs = "69bbf4a4-23d0-4da4-b4ea-97dbcb735a40"
 ChainCutters = "b0ce31d9-63c8-4e5e-905b-7866bc977c93"
+Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 Setfield = "efcf1570-3423-57d1-acb7-fd33fddbac46"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 Zygote = "e88e6eb3-aa80-5325-afca-941959d7151f"
