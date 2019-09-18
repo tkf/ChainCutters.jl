@@ -31,7 +31,7 @@ julia> C, back = Zygote.forward(A, B) do A, B
        end;
 
 julia> C == A * B
-true
+false
 
 julia> ∂A, ∂B = back(I(3));
 
