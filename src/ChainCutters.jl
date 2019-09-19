@@ -165,7 +165,8 @@ function dual_function(f::F, args0::NTuple{N, Any}) where {F, N}
     end
 end
 
-broadcast_adjoint(f, args::Vararg{Const}) = f.(args...), _ -> nothing
+broadcast_adjoint(f, args::Vararg{Const}) =
+    f.(map(unwrap, args)...), _ -> nothing
 
 function broadcast_adjoint(f, args0...)
     args = map(unwrap, args0)
@@ -193,7 +194,9 @@ using BroadcastableStructs: BroadcastableCallable, calling, splitargsfor
         args...,
     )
     function broadcastablecallable_pullback(Δ)
-        fields, rest = splitargsfor(obj, Base.tail(back(Δ))...)
+        partials = back(Δ)
+        partials === nothing && return nothing
+        fields, rest = splitargsfor(obj, Base.tail(partials)...)
         return (NamedTuple{__fieldnames(obj)}(fields), rest...)
     end
     return y, broadcastablecallable_pullback

@@ -44,6 +44,16 @@ end
     end
     @test y_actual == y_desired
     @test back_actual(1) == back_desired(1)
+
+    @testset "all constants" begin
+        function h(a)
+            g = cut(@set f.a = a)
+            sum(g.(cut(u), cut(v)))
+        end
+        y_actual, back_actual = Zygote.forward(h, f.a)
+        @test y_actual == h(f.a)
+        @test back_actual(1) == (nothing,)
+    end
 end
 
 end  # module
