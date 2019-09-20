@@ -23,7 +23,7 @@ version = "0.5.6"
 
 [[BroadcastableStructs]]
 deps = ["Setfield", "ZygoteRules"]
-git-tree-sha1 = "d1bb2020c03c9aff64c86b9a580e9ae9828e37e6"
+git-tree-sha1 = "01fd4035caf7a37dc85c3a5e79c3a4e8442aafba"
 repo-rev = "master"
 repo-url = "https://github.com/tkf/BroadcastableStructs.jl.git"
 uuid = "69bbf4a4-23d0-4da4-b4ea-97dbcb735a40"
