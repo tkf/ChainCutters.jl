@@ -26,7 +26,7 @@ julia> B = [
            5  3  5
        ];
 
-julia> C, back = Zygote.forward(A, B) do A, B
+julia> C, back = Zygote.pullback(A, B) do A, B
            cut(A) * B
        end;
 
@@ -55,7 +55,7 @@ julia> using ChainCutters: uncut
 
 julia> using Setfield
 
-julia> C, back = Zygote.forward((A = A, B = B, alpha = 2)) do p
+julia> C, back = Zygote.pullback((A = A, B = B, alpha = 2)) do p
            q = cut(@set p.B = uncut(p.B))  # only treat `B` as varying
            q.A * q.B * q.alpha
        end;
