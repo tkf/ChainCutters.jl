@@ -9,7 +9,7 @@ using Zygote
 
 suite = BenchmarkGroup()
 
-struct Poly10{T0, T1, T2, T3, T4, T5, T6, T7, T8, T9} <: BroadcastableCallable
+struct Poly9{T0, T1, T2, T3, T4, T5, T6, T7, T8, T9} <: BroadcastableCallable
     c0::T0
     c1::T1
     c2::T2
@@ -22,7 +22,7 @@ struct Poly10{T0, T1, T2, T3, T4, T5, T6, T7, T8, T9} <: BroadcastableCallable
     c9::T9
 end
 
-function (p::Poly10)(x)
+function (p::Poly9)(x)
     @unpack c0, c1, c2, c3, c4, c5, c6, c7, c8, c9 = p
     return c0 + c1 * x +
         c2 * x^2 +
@@ -54,7 +54,7 @@ end
 
 let
     xs = rand(1000)
-    p = Poly10(rand(10)...)
+    p = Poly9(rand(10)...)
     suite["f_cut"] = @benchmarkable Zygote.gradient($(f_cut(p, xs)), 1.0)
     suite["f_nocut"] = @benchmarkable Zygote.gradient($(f_nocut(p, xs)), 1.0)
     suite["f_man"] = @benchmarkable Zygote.gradient($(f_man(p, xs)), 1.0)
