@@ -185,19 +185,39 @@ function broadcast_adjoint(f, args0...)
     return y, back
 end
 
-using BroadcastableStructs: BroadcastableCallable, calling, splitargsfor
+@inline _rewrap(x) = _rewrap(identity, x)
+@inline _rewrap(wrap::F, x) where F  = wrap(x)
+@inline _rewrap(::typeof(identity), x::Variable) = _rewrap(identity, unwrap(x))
+@inline _rewrap(::typeof(identity), x::Const) = _rewrap(_cut, unwrap(x))
+@inline _rewrap(::typeof(_cut), x::Variable) = _rewrap(identity, unwrap(x))
+@inline _rewrap(::typeof(_cut), x::Const) = _rewrap(_cut, unwrap(x))
+
+using BroadcastableStructs:
+    BroadcastableCallable,
+    BroadcastableStruct,
+    calling,
+    deconstruct,
+    reconstruct
+
+@inline function _rewrap(wrap::F, obj::T) where {F, T <: BroadcastableStruct}
+    fields = map(x -> _rewrap(wrap, x), fieldvalues(obj))
+    return constructor_of(T)(fields...)
+end
+
 @adjoint function Broadcast.broadcasted(c::Const{<:BroadcastableCallable}, args...)
-    obj = unwrap(c)
+    obj = _rewrap(c) :: BroadcastableCallable
     y, back = broadcast_adjoint(
         calling(obj),
-        map(_cut, fieldvalues(obj))...,
+        deconstruct(obj)...,
         args...,
     )
     function broadcastablecallable_pullback(Δ)
         partials = back(Δ)
         partials === nothing && return nothing
-        fields, rest = splitargsfor(obj, Base.tail(partials)...)
-        return (NamedTuple{__fieldnames(obj)}(fields), rest...)
+        ∂obj, ∂args = reconstruct(obj, Base.tail(partials)...) do obj, fields
+            NamedTuple{__fieldnames(obj)}(fields)
+        end
+        return (∂obj, ∂args...)
     end
     return y, broadcastablecallable_pullback
 end
