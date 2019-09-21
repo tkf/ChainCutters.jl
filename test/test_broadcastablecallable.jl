@@ -2,7 +2,7 @@ module TestBroadcastableCallable
 
 using BroadcastableStructs
 using ChainCutters: cut, uncut
-using Setfield: @set
+using Setfield: @set, @set!
 using Test
 using Zygote
 
@@ -45,6 +45,23 @@ end
     y_desired, back_desired = Zygote.forward(u -> sum(f.(u, v)), u)
     @test y_actual == y_desired
     @test back_actual(1) == back_desired(1)
+
+    y_actual, back_actual = Zygote.forward(f -> sum(f.(cut(u), cut(v))), f)
+    y_desired, back_desired = Zygote.forward(f -> sum(f.(u, v)), f)
+    @test y_actual == y_desired
+    @test back_actual(1) == back_desired(1)
+
+    y_partialcut, back_partialcut = Zygote.forward(f) do f
+        @set! f.b = cut(f.b)
+        sum(f.(cut(u), cut(v)))
+    end
+    @test y_partialcut == y_desired
+    @test back_partialcut(1) == (
+        (
+            a = back_desired(1)[1].a,
+            b = nothing,
+        ),
+    )
 
     y_actual, back_actual = Zygote.forward(f.a) do a
         g = cut(@set f.a = uncut(a))
