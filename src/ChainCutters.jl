@@ -20,7 +20,7 @@ using ZygoteRules
 end
 
 fieldvalues(obj) = ntuple(i -> getfield(obj, i), nfields(obj))
-@generated __fieldnames(obj) = fieldnames(obj::Type)  # danger zone
+__fieldnames(::T) where T = fieldnames(T)
 # TODO: check if I need __fieldnames
 
 # asnamedtuple(obj) = NamedTuple{__fieldnames(obj)}(fieldvalues(obj))
