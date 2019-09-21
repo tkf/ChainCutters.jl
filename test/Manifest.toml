@@ -23,7 +23,7 @@ version = "0.5.6"
 
 [[BroadcastableStructs]]
 deps = ["Setfield", "ZygoteRules"]
-git-tree-sha1 = "3ddde3dde99388496a093ba1b4f41493829021cb"
+git-tree-sha1 = "d1bb2020c03c9aff64c86b9a580e9ae9828e37e6"
 repo-rev = "master"
 repo-url = "https://github.com/tkf/BroadcastableStructs.jl.git"
 uuid = "69bbf4a4-23d0-4da4-b4ea-97dbcb735a40"
@@ -109,9 +109,9 @@ version = "0.23.3"
 
 [[FFTW]]
 deps = ["AbstractFFTs", "BinaryProvider", "Conda", "Libdl", "LinearAlgebra", "Reexport", "Test"]
-git-tree-sha1 = "03f8776fbdae28c20c0d1d2ae4e090cd1dfcd247"
+git-tree-sha1 = "6c5b420da0b8c12098048561b8d58f81adea506f"
 uuid = "7a1cc6ca-52ef-59f5-83cd-3a7055c09341"
-version = "1.0.0"
+version = "1.0.1"
 
 [[FillArrays]]
 deps = ["LinearAlgebra", "Random", "SparseArrays"]
