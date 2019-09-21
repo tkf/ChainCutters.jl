@@ -1,0 +1,18 @@
+using PkgBenchmark
+
+mkconfig(; kwargs...) =
+    BenchmarkConfig(; kwargs...)
+
+group_target = benchmarkpkg(
+    dirname(@__DIR__),
+    mkconfig(),
+    resultfile = joinpath(@__DIR__, "result-target.json"),
+)
+
+group_baseline = benchmarkpkg(
+    dirname(@__DIR__),
+    mkconfig(id = "master"),
+    resultfile = joinpath(@__DIR__, "result-baseline.json"),
+)
+
+judgement = judge(group_target, group_baseline)
