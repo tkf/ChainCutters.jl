@@ -55,22 +55,12 @@ Base.getproperty(x::Variable, name::Symbol) = _uncut(getproperty(unwrap(x), name
 nothingsfor(obj) =
     NamedTuple{__fieldnames(obj)}(ntuple(_ -> nothing, nfields(obj)))
 
-# Let's use this ugly formatting until `literal_getproperty` is moved
-# to ZygoteRules.jl: https://github.com/FluxML/ZygoteRules.jl/issues/3
-function __init__()
-    @require Zygote="e88e6eb3-aa80-5325-afca-941959d7151f" begin
-
-using .Zygote: Zygote, unbroadcast
-
-@adjoint function Zygote.literal_getproperty(obj::Wrapper, ::Val{name}) where name
-    Zygote.literal_getproperty(obj, Val(name)), function(Δ)
+@adjoint function ZygoteRules.literal_getproperty(obj::Wrapper, ::Val{name}) where name
+    ZygoteRules.literal_getproperty(obj, Val(name)), function(Δ)
         nt = nothingsfor(unwrap(obj))
         (setproperties(nt, NamedTuple{(name,)}((Δ,))), nothing)
     end
 end
-
-    end  # @require begin
-end  # function __init__
 
 
 Setfield.setproperties(obj::Const, patch) =
@@ -220,6 +210,12 @@ end
         return (∂obj, ∂args...)
     end
     return y, broadcastablecallable_pullback
+end
+
+function __init__()
+    @require Zygote="e88e6eb3-aa80-5325-afca-941959d7151f" begin
+        using .Zygote: unbroadcast
+    end
 end
 
 end # module
