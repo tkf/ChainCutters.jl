@@ -35,8 +35,8 @@ function (p::Poly9)(x)
         c9 * x^9
 end
 
-f_cut(p, x) = c -> sum((cut(@set p.c2 = uncut(c))).(cut(x)))
-f_nocut(p, x) = c -> sum((@set p.c2 = c).(x))
+f_cut(p, x) = c -> sum(abs2.((cut(@set p.c2 = uncut(c))).(cut(x))))
+f_nocut(p, x) = c -> sum(abs2.((@set p.c2 = c).(x)))
 f_man(p, x) = function(c)
     @unpack c0, c1, c3, c4, c5, c6, c7, c8, c9 = p
     c2 = c
@@ -49,7 +49,7 @@ f_man(p, x) = function(c)
         c7 * x^7 +
         c8 * x^8 +
         c9 * x^9
-    return sum(y)
+    return sum(abs2.(y))
 end
 
 let
