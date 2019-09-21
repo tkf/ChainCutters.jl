@@ -55,9 +55,9 @@ end
 let
     xs = rand(1000)
     p = Poly9(rand(10)...)
-    suite["f_cut"] = @benchmarkable Zygote.gradient($(f_cut(p, xs)), 1.0)
-    suite["f_nocut"] = @benchmarkable Zygote.gradient($(f_nocut(p, xs)), 1.0)
-    suite["f_man"] = @benchmarkable Zygote.gradient($(f_man(p, xs)), 1.0)
+    suite["f_cut"] = @benchmarkable gradient($(f_cut(p, xs)), 1.0) seconds=20
+    suite["f_nocut"] = @benchmarkable gradient($(f_nocut(p, xs)), 1.0) seconds=20
+    suite["f_man"] = @benchmarkable gradient($(f_man(p, xs)), 1.0) seconds=20
 end
 
 end  # module
