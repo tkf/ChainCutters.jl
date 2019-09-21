@@ -204,10 +204,7 @@ using BroadcastableStructs:
     return constructor_of(T)(fields...)
 end
 
-@adjoint function Broadcast.broadcasted(
-    c::Union{Const{<:BroadcastableCallable}, BroadcastableCallable},
-    args...,
-)
+@adjoint function Broadcast.broadcasted(c::Const{<:BroadcastableCallable}, args...)
     obj = _rewrap(c) :: BroadcastableCallable
     y, back = broadcast_adjoint(
         calling(obj),
