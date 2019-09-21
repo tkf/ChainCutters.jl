@@ -36,7 +36,6 @@ end
     u = rand(5)
     v = rand(5)
 
-    #=
     y_actual, back_actual = Zygote.forward(v -> sum(f.(cut(u), v)), v)
     y_desired, back_desired = Zygote.forward(v -> sum(f.(u, v)), v)
     @test y_actual == y_desired
@@ -46,7 +45,6 @@ end
     y_desired, back_desired = Zygote.forward(u -> sum(f.(u, v)), u)
     @test y_actual == y_desired
     @test back_actual(1) == back_desired(1)
-    =#
 
     y_actual, back_actual = Zygote.forward(f.a) do a
         g = cut(@set f.a = uncut(a))
