@@ -139,7 +139,6 @@ end
 
 # Based on `Zygote.broadcast_forward`:
 
-dual(x, p) = x
 dual(x::Real, p) = Dual(x, p)
 
 function dual_function(f::F, args0::NTuple{N, Any}) where {F, N}
@@ -169,6 +168,14 @@ broadcast_adjoint(f, args::Vararg{Const}) =
     f.(map(unwrap, args)...), _ -> nothing
 
 function broadcast_adjoint(f, args0...)
+    map(args0) do x
+        x isa Const && return
+        eltype(x) <: Real && return
+        throw(ArgumentError(string(
+            "Differentiation w.r.t ", x, " is not supported.\n",
+            "Use `cut` to mark it as a constant.",
+        )))
+    end
     args = map(unwrap, args0)
     out = dual_function(f, args0).(args...)
     eltype(out) <: Dual || return (out, _ -> nothing)

@@ -105,4 +105,20 @@ end
     @test back_actual(1) == back_desired(1)
 end
 
+@testset "ArgumentError" begin
+    f = AddCall(_ -> 0, _ -> 1)
+
+    err = nothing
+    try
+        Zygote.forward(x -> f.(x), Ref([0.0]))
+    catch err
+    end
+    @test err isa ArgumentError
+    @test occursin("Use `cut`", sprint(showerror, err))
+
+    y, back = Zygote.forward(x -> cut(f).(cut(x)), Ref([0.0]))
+    @test y == 1
+    @test back(1) === (nothing,)
+end
+
 end  # module
