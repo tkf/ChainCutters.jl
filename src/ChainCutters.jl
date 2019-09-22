@@ -137,16 +137,45 @@ for op in (*, +, -)
     end
 end
 
-# Based on `Zygote.broadcast_forward`:
+const NonDifferentiableType = Union{
+    Const,
+    # From `Broadcast.broadcastable(x) = Ref(x)`:
+    Symbol,
+    AbstractString,
+    # Function,  # closures may contain `Real`s
+    UndefInitializer,
+    Nothing,
+    RoundingMode,
+    Missing,
+    Val,
+    Ptr,
+    Regex,
+    # From `Type` is also treated similarly in `Broadcast.broadcastable`:
+    Type,
+}
 
-dual(x::Real, p) = Dual(x, p)
+nondifferentiable(::T) where T = nondifferentiable(T)
+nondifferentiable(::Type) = false
+nondifferentiable(::Type{<:NonDifferentiableType}) = true
+nondifferentiable(::Type{<:AbstractArray{<:NonDifferentiableType}}) = true
+
+differentiable(::T) where T = differentiable(T)
+differentiable(::Type) = false
+differentiable(::Type{<:Real}) = true
+differentiable(::Type{<:AbstractArray{<:Real}}) = true
+# How about Union{Missing,Real}?
+
+supported(x) = nondifferentiable(x) || differentiable(x)
+
+# Based on `Zygote.broadcast_forward`:
 
 function dual_function(f::F, args0::NTuple{N, Any}) where {F, N}
     nvariables = _count(x -> !(x isa Const), args0)
     partials, = foldlargs(((), 0), args0...) do (partials, n), x
-        if x isa Const
+        if nondifferentiable(x)
             ((partials..., nothing), n)
         else
+            @assert differentiable(x)
             i = n + 1
             ((partials..., ntuple(j -> i == j, nvariables)), i)
         end
@@ -157,7 +186,7 @@ function dual_function(f::F, args0::NTuple{N, Any}) where {F, N}
             if partials[i] === nothing
                 args[i]
             else
-                dual(args[i], partials[i])
+                Dual(args[i], partials[i])
             end
         end
         return f(ds...)
@@ -169,8 +198,7 @@ broadcast_adjoint(f, args::Vararg{Const}) =
 
 function broadcast_adjoint(f, args0...)
     map(args0) do x
-        x isa Const && return
-        eltype(x) <: Real && return
+        supported(x) && return
         throw(ArgumentError(string(
             "Differentiation w.r.t ", x, " is not supported.\n",
             "Use `cut` to mark it as a constant.",
