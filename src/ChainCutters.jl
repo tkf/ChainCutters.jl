@@ -47,10 +47,13 @@ _cut(x::Wrapper) = x
 _uncut(x) = Variable(x)
 _uncut(x::Wrapper) = x
 
-Base.getproperty(x::Const, name) = _cut(getproperty(unwrap(x), name))
-Base.getproperty(x::Variable, name) = _uncut(getproperty(unwrap(x), name))
-Base.getproperty(x::Const, name::Symbol) = _cut(getproperty(unwrap(x), name))
-Base.getproperty(x::Variable, name::Symbol) = _uncut(getproperty(unwrap(x), name))
+unwrapvar(x) = x
+unwrapvar(x::Variable) = unwrap(x)
+
+Base.getproperty(x::Const, name) = unwrapvar(_cut(getproperty(unwrap(x), name)))
+Base.getproperty(x::Variable, name) = getproperty(unwrap(x), name)
+Base.getproperty(x::Const, name::Symbol) = unwrapvar(_cut(getproperty(unwrap(x), name)))
+Base.getproperty(x::Variable, name::Symbol) = getproperty(unwrap(x), name)
 
 nothingsfor(obj) =
     NamedTuple{__fieldnames(obj)}(ntuple(_ -> nothing, nfields(obj)))
