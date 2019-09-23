@@ -95,6 +95,7 @@ Base.setindex(x::Variable, I...) = _uncut(Base.setindex(unwrap(x), I...))
 @inline unwrap_rec(x::Wrapper) = unwrap_rec(unwrap(x))
 @inline unwrap_rec(x::Union{Tuple, NamedTuple}) = map(unwrap_rec, x)
 
+@adjoint unwrap(x) = unwrap(x), y -> (y,)
 @adjoint cut(x) = _cut(x), y -> (y,)  # not `nothing`
 @adjoint uncut(x) = _uncut(x), y -> (y,)
 # Note:
