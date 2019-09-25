@@ -6,7 +6,7 @@ module ChainCutters
     replace(read(path, String), r"^```julia"m => "```jldoctest README")
 end ChainCutters
 
-using Setfield: Setfield, constructor_of, setproperties
+using Setfield: Setfield, constructor_of, setproperties, Lens
 using ForwardDiff
 using ForwardDiff: Dual
 using Requires
@@ -94,6 +94,9 @@ Base.setindex(x::Variable, I...) = _uncut(Base.setindex(unwrap(x), I...))
 @inline unwrap_rec(x::AbstractArray) = x
 @inline unwrap_rec(x::Wrapper) = unwrap_rec(unwrap(x))
 @inline unwrap_rec(x::Union{Tuple, NamedTuple}) = map(unwrap_rec, x)
+
+# A workaround for: https://github.com/jw3126/Setfield.jl/pull/84
+@inline unwrap_rec(x::Lens) = x
 
 @adjoint unwrap(x) = unwrap(x), y -> (y,)
 @adjoint cut(x) = _cut(x), y -> (y,)  # not `nothing`
