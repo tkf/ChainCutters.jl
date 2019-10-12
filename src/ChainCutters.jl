@@ -6,11 +6,17 @@ module ChainCutters
     replace(read(path, String), r"^```julia"m => "```jldoctest README")
 end ChainCutters
 
-using Setfield: Setfield, constructor_of, setproperties, Lens
+using Setfield: Setfield, setproperties, Lens
 using ForwardDiff
 using ForwardDiff: Dual
 using Requires
 using ZygoteRules
+
+const constructorof = try
+    Setfield.constructorof
+catch
+    Setfield.constructor_of
+end
 
 @inline foldlargs(op, x) = x
 @inline foldlargs(op, x1, x2, xs...) = foldlargs(op, op(x1, x2), xs...)
@@ -87,7 +93,7 @@ Base.setindex(x::Variable, I...) = _uncut(Base.setindex(unwrap(x), I...))
 
 @inline unwrap_rec(x::T) where T =
     if Base.isstructtype(T)
-        constructor_of(T)(unwrap_rec(fieldvalues(x))...)
+        constructorof(T)(unwrap_rec(fieldvalues(x))...)
     else
         x
     end
@@ -240,7 +246,7 @@ using BroadcastableStructs:
 
 @inline function _rewrap(wrap::F, obj::T) where {F, T <: BroadcastableStruct}
     fields = map(x -> _rewrap(wrap, x), fieldvalues(obj))
-    return constructor_of(T)(fields...)
+    return constructorof(T)(fields...)
 end
 
 @adjoint function Broadcast.broadcasted(
