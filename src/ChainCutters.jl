@@ -92,7 +92,9 @@ Base.setindex(x::Const, I...) = _cut(Base.setindex(unwrap(x), I...))
 Base.setindex(x::Variable, I...) = _uncut(Base.setindex(unwrap(x), I...))
 
 @inline unwrap_rec(x::T) where T =
-    if Base.isstructtype(T)
+    if Base.issingletontype(T)
+        x
+    elseif Base.isstructtype(T)
         constructorof(T)(unwrap_rec(fieldvalues(x))...)
     else
         x
