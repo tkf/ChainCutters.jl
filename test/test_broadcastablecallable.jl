@@ -36,25 +36,25 @@ end
     u = rand(5)
     v = rand(5)
 
-    y_actual, back_actual = Zygote.forward(v -> sum(f.(cut(u), v)), v)
-    y_desired, back_desired = Zygote.forward(v -> sum(f.(u, v)), v)
+    y_actual, back_actual = Zygote.pullback(v -> sum(f.(cut(u), v)), v)
+    y_desired, back_desired = Zygote.pullback(v -> sum(f.(u, v)), v)
     @test y_actual == y_desired
     @test back_actual(1) isa Tuple{Vector{Float64}}
     @test back_actual(1) == back_desired(1)
 
-    y_actual, back_actual = Zygote.forward(u -> sum(f.(u, cut(v))), u)
-    y_desired, back_desired = Zygote.forward(u -> sum(f.(u, v)), u)
+    y_actual, back_actual = Zygote.pullback(u -> sum(f.(u, cut(v))), u)
+    y_desired, back_desired = Zygote.pullback(u -> sum(f.(u, v)), u)
     @test y_actual == y_desired
     @test back_actual(1) isa Tuple{Vector{Float64}}
     @test back_actual(1) == back_desired(1)
 
-    y_actual, back_actual = Zygote.forward(f -> sum(f.(cut(u), cut(v))), f)
-    y_desired, back_desired = Zygote.forward(f -> sum(f.(u, v)), f)
+    y_actual, back_actual = Zygote.pullback(f -> sum(f.(cut(u), cut(v))), f)
+    y_desired, back_desired = Zygote.pullback(f -> sum(f.(u, v)), f)
     @test y_actual == y_desired
     @test back_actual(1) isa Tuple{NamedTuple{(:a, :b)}}
     @test back_actual(1) == back_desired(1)
 
-    y_partialcut, back_partialcut = Zygote.forward(f) do f
+    y_partialcut, back_partialcut = Zygote.pullback(f) do f
         @set! f.b = cut(f.b)
         sum(f.(cut(u), cut(v)))
     end
@@ -66,12 +66,12 @@ end
         ),
     )
 
-    y_actual, back_actual = Zygote.forward(f.a) do a
+    y_actual, back_actual = Zygote.pullback(f.a) do a
         g = cut(@set f.a = uncut(a))
         # g = Zygote.@showgrad g
         sum(g.(u, v))
     end
-    y_desired, back_desired = Zygote.forward(f.a) do a
+    y_desired, back_desired = Zygote.pullback(f.a) do a
         g = @set f.a = a
         # g = Zygote.@showgrad g
         sum(g.(u, v))
@@ -84,7 +84,7 @@ end
             g = cut(@set f.a = a)
             sum(g.(cut(u), cut(v)))
         end
-        y_actual, back_actual = Zygote.forward(h, f.a)
+        y_actual, back_actual = Zygote.pullback(h, f.a)
         @test y_actual == h(f.a)
         @test back_actual(1) == (nothing,)
     end
@@ -94,12 +94,12 @@ end
     f = AddCall(Poly3(rand(4)...), Poly3(rand(4)...))
     x = rand(5)
 
-    y_actual, back_actual = Zygote.forward(f.f.c2) do c
+    y_actual, back_actual = Zygote.pullback(f.f.c2) do c
         g = cut(@set f.f.c2 = uncut(c))
         # g = Zygote.@showgrad g
         sum(g.(x))
     end
-    y_desired, back_desired = Zygote.forward(f.f.c2) do c
+    y_desired, back_desired = Zygote.pullback(f.f.c2) do c
         g = @set f.f.c2 = c
         # g = Zygote.@showgrad g
         sum(g.(x))
@@ -113,20 +113,20 @@ end
 
     err = nothing
     try
-        Zygote.forward(x -> f.(x), Ref([0.0]))
+        Zygote.pullback(x -> f.(x), Ref([0.0]))
     catch err
     end
     @test err isa ArgumentError
     @test occursin("Use `cut`", sprint(showerror, err))
 
-    y, back = Zygote.forward(x -> cut(f).(cut(x)), Ref([0.0]))
+    y, back = Zygote.pullback(x -> cut(f).(cut(x)), Ref([0.0]))
     @test y == 1
     @test back(1) === (nothing,)
 end
 
 @testset "NonDifferentiableType" begin
     f = AddCall(Poly3(rand(4)...), Poly3(rand(4)...))
-    y, back = Zygote.forward(x -> cut(f).(x), missing)
+    y, back = Zygote.pullback(x -> cut(f).(x), missing)
     @test y === missing
     @test back(1) === (nothing,)
 end

@@ -10,9 +10,9 @@ using Zygote
     B = rand(n, n)
     Δ = rand(n, n)
 
-    y_plain, back_plain = Zygote.forward(op, A, B)
-    y_cut1, back_cut1 = Zygote.forward((a, b) -> op(cut(a), b), A, B)
-    y_cut2, back_cut2 = Zygote.forward((a, b) -> op(a, cut(b)), A, B)
+    y_plain, back_plain = Zygote.pullback(op, A, B)
+    y_cut1, back_cut1 = Zygote.pullback((a, b) -> op(cut(a), b), A, B)
+    y_cut2, back_cut2 = Zygote.pullback((a, b) -> op(a, cut(b)), A, B)
     diff_plain = back_plain(Δ)
     diff_cut1 = back_cut1(Δ)
     diff_cut2 = back_cut2(Δ)
