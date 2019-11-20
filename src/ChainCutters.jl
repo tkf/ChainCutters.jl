@@ -26,7 +26,8 @@ end
 end
 
 fieldvalues(obj) = ntuple(i -> getfield(obj, i), nfields(obj))
-@generated __fieldnames(obj) = fieldnames(obj::Type)  # danger zone
+__fieldnames(obj) = __fieldnames(typeof(obj))
+@generated __fieldnames(::Type{T}) where T = fieldnames(T)  # danger zone
 # TODO: check if I need __fieldnames
 
 # asnamedtuple(obj) = NamedTuple{__fieldnames(obj)}(fieldvalues(obj))
@@ -264,8 +265,8 @@ end
     function broadcastablecallable_pullback(Δ)
         partials = back(Δ)
         partials === nothing && return nothing
-        ∂obj, ∂args = reconstruct(obj, Base.tail(partials)...) do obj, fields
-            NamedTuple{__fieldnames(obj)}(fields)
+        ∂obj, ∂args = reconstruct(obj, Base.tail(partials)...) do T, fields
+            NamedTuple{__fieldnames(T)}(fields)
         end
         return (∂obj, ∂args...)
     end
