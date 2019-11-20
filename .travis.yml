@@ -28,6 +28,12 @@ after_success:
 
 jobs:
   include:
+    - name: "Zygote 0.3"
+      os: linux
+      install:
+        - julia -e 'using Run; Run.prepare("test/environments/Zygote-0.3")'
+      script:
+        - julia -e 'using Run; Run.test(project="test/environments/Zygote-0.3")'
     - name: "Benchmark"
       julia: 1.2
       os: linux
