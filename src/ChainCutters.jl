@@ -32,6 +32,10 @@ __fieldnames(obj) = __fieldnames(typeof(obj))
 
 # asnamedtuple(obj) = NamedTuple{__fieldnames(obj)}(fieldvalues(obj))
 
+@adjoint fieldvalues(obj::T) where T = fieldvalues(obj), function(v)
+    (NamedTuple{__fieldnames(T)}(v),)
+end
+
 cut(x) = x
 uncut(x) = x
 
