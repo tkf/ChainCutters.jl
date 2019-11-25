@@ -168,7 +168,7 @@ const NonDifferentiableType = Union{
 }
 
 nondifferentiable(::T) where T = nondifferentiable(T)
-nondifferentiable(::Type) = false
+nondifferentiable(::Type{T}) where T = Base.issingletontype(T)
 nondifferentiable(::Type{<:NonDifferentiableType}) = true
 nondifferentiable(::Type{<:AbstractArray{<:NonDifferentiableType}}) = true
 
