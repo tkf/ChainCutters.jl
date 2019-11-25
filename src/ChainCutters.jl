@@ -183,7 +183,7 @@ supported(x) = nondifferentiable(x) || differentiable(x)
 # Based on `Zygote.broadcast_forward`:
 
 function dual_function(f::F, args0::NTuple{N, Any}) where {F, N}
-    nvariables = _count(x -> !(x isa Const), args0)
+    nvariables = _count(!nondifferentiable, args0)
     partials, = foldlargs(((), 0), args0...) do (partials, n), x
         if nondifferentiable(x)
             ((partials..., nothing), n)
@@ -222,7 +222,7 @@ function broadcast_adjoint(f, args0...)
     eltype(out) <: Dual || return (out, _ -> nothing)
     y = map(ForwardDiff.value, out)
     back(ȳ) = foldlargs(((nothing,), 0), args0...) do (partials, n), x
-        if x isa Const
+        if nondifferentiable(x)
             ((partials..., nothing), n)
         else
             i = n + 1
